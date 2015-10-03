@@ -1,8 +1,11 @@
 package sunshine.fjaviermo.com.sunshine;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -27,7 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -50,13 +53,53 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            FecthWeatherTask weatherTask =  new FecthWeatherTask();
-            weatherTask.execute("94043");
+            updateWeather();
+            return true;
+        }
+        if(id == R.id.action_map){
+            showMap();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void showMap() {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+
+       Uri geolocation = Uri.parse("geo:0,0?").buildUpon()
+               .appendQueryParameter("q",location)
+               .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geolocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void updateWeather() {
+        FecthWeatherTask weatherTask =  new FecthWeatherTask();
+
+        // Access the default SharedPreferences
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        String temperature = preferences.getString(getString(R.string.pref_temperature_key),
+                getString(R.string.pref_temperature_default));
+        weatherTask.execute(location, temperature);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
@@ -68,20 +111,20 @@ public class ForecastFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] forecastArray = {
-                "Today - Sunny - 88/63",
-                "Tomorrow - Foggy - 70/40",
-                "Thurs - Asteroids -75/65",
-                "Fri - Heavy Rain - 65/56",
-                "Sat - HELP TRAPPED IN WEATHER STATION - 60/51",
-                "Sun - Sunny - 80/68"
-        };
-        ArrayList<String> weekForecast = new ArrayList<>(Arrays.asList(forecastArray));
-
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         mForecastAdapter = new ArrayAdapter<>(getActivity(),
-                R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+                R.layout.list_item_forecast, R.id.list_item_forecast_textview,
+                new ArrayList<String>());
         listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_INTENT, forecast);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -101,8 +144,12 @@ public class ForecastFragment extends Fragment {
         @Override
         protected String[] doInBackground(String... params) {
 
+            String units = "metric";
+
             if (params.length == 0) {
                 return null;
+            } else if(params.length == 2) {
+                units = params[1];
             }
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -112,7 +159,6 @@ public class ForecastFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
             String format = "json";
-            String units = "metric";
             int numDays = 7;
 
             try {
