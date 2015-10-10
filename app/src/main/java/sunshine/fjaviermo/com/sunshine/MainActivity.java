@@ -12,39 +12,33 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Hola", "onCreate");
         setContentView(R.layout.activity_main);
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        Log.d("Hola", "onPause");
 
     }
 
     @Override
     protected void onStop(){
         super.onStop();
-        Log.d("Hola", "onStop");
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        Log.d("Hola", "onResume");
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-        Log.d("Hola", "onStart");
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        Log.d("Hola", "onDestroy");
     }
 
     @Override

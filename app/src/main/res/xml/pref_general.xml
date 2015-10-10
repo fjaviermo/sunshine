@@ -11,11 +11,9 @@
         android:singleLine="true" />
 
     <ListPreference
-        android:key="@string/pref_temperature_key"
-        android:title="@string/pref_temperature_title"
-        android:dialogTitle="@string/pref_temperature_title"
-        android:entries="@array/pref_temperatures_entries"
-        android:entryValues="@array/pref_temperatures_values"
-        android:defaultValue="@string/pref_temperature_default"
-        />
+        android:title="@string/pref_units_label"
+        android:key="@string/pref_units_key"
+        android:defaultValue="@string/pref_units_metric"
+        android:entryValues="@array/pref_units_values"
+        android:entries="@array/pref_units_options" />
 </PreferenceScreen>

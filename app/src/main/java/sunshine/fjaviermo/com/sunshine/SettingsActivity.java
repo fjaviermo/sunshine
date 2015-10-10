@@ -180,7 +180,7 @@ public class SettingsActivity extends PreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_temperature_key)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
 
         }
     }
