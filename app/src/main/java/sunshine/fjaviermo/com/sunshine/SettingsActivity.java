@@ -2,6 +2,7 @@ package sunshine.fjaviermo.com.sunshine;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -41,6 +42,13 @@ public class SettingsActivity extends PreferenceActivity {
                 .replace(android.R.id.content, new GeneralPreferenceFragment())
                 .commit();
         setupActionBar();
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public Intent getParentActivityIntent() {
+        return super.getParentActivityIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     /**
